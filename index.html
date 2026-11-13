@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Perpangkatan - SMP</title>
+<style>
+  /* ===== Gaya dasar ===== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(160deg, #fef3c7, #fde68a);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px;
+    color: #1e293b;
+  }
+
+  .wadah {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(120, 53, 15, 0.15);
+    padding: 20px;
+    margin-top: 8px;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    text-align: center;
+    color: #b45309;
+    margin-bottom: 4px;
+  }
+
+  .subjudul {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 16px;
+  }
+
+  /* ===== Bilah kemajuan ===== */
+  .info-atas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+
+  .bar-luar {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .bar-dalam {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f59e0b, #ea580c);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+
+  /* ===== Kartu soal ===== */
+  .soal {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    border-radius: 8px;
+  }
+
+  /* ===== Tombol pilihan ===== */
+  .pilihan {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .tombol-pilihan {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    text-align: left;
+    background: #f1f5f9;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    font-family: inherit;
+    color: #1e293b;
+  }
+
+  .tombol-pilihan:hover:not(:disabled) {
+    background: #fef3c7;
+    border-color: #fcd34d;
+  }
+
+  .tombol-pilihan:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .tombol-pilihan:disabled {
+    cursor: default;
+  }
+
+  .huruf {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border-radius: 50%;
+    background: #cbd5e1;
+    color: #334155;
+  }
+
+  /* Warna jawaban benar / salah */
+  .benar {
+    background: #dcfce7 !important;
+    border-color: #22c55e !important;
+  }
+  .benar .huruf {
+    background: #22c55e;
+    color: #ffffff;
+  }
+
+  .salah {
+    background: #fee2e2 !important;
+    border-color: #ef4444 !important;
+  }
+  .salah .huruf {
+    background: #ef4444;
+    color: #ffffff;
+  }
+
+  /* ===== Umpan balik ===== */
+  .umpan-balik {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .umpan-balik.tampil {
+    display: block;
+  }
+
+  .umpan-balik.ok {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .umpan-balik.gagal {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  /* ===== Tombol navigasi ===== */
+  .tombol-utama {
+    width: 100%;
+    padding: 13px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    color: #ffffff;
+    background: linear-gradient(90deg, #f59e0b, #ea580c);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .tombol-utama:hover:not(:disabled) {
+    opacity: 0.92;
+  }
+
+  .tombol-utama:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .tombol-utama:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  /* ===== Layar hasil ===== */
+  .layar-hasil {
+    display: none;
+    text-align: center;
+  }
+
+  .layar-hasil.tampil {
+    display: block;
+  }
+
+  .skor-besar {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #b45309;
+    line-height: 1;
+    margin: 10px 0;
+  }
+
+  .pesan-hasil {
+    font-size: 1rem;
+    color: #475569;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .rincian {
+    text-align: left;
+    font-size: 0.85rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 18px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .rincian div {
+    padding: 6px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .rincian div:last-child {
+    border-bottom: none;
+  }
+
+  .ikon-benar { color: #16a34a; font-weight: 700; }
+  .ikon-salah { color: #dc2626; font-weight: 700; }
+
+  /* Sembunyikan layar kuis saat hasil tampil */
+  .layar-kuis.sembunyi {
+    display: none;
+  }
+
+  /* Notasi pangkat (sup) */
+  sup {
+    font-size: 0.75em;
+  }
+</style>
+</head>
+<body>
+
+<div class="wadah">
+  <h1>Kuis Perpangkatan</h1>
+  <p class="subjudul">10 soal pilihan ganda untuk siswa SMP</p>
+
+  <!-- ================= LAYAR KUIS ================= -->
+  <div class="layar-kuis" id="layarKuis">
+    <div class="info-atas">
+      <span id="labelSoal">Soal 1 dari 10</span>
+      <span id="labelSkor">Skor: 0</span>
+    </div>
+    <div class="bar-luar">
+      <div class="bar-dalam" id="barDalam"></div>
+    </div>
+
+    <div class="soal" id="teksSoal">Memuat soal...</div>
+    <div class="pilihan" id="wadahPilihan"></div>
+    <div class="umpan-balik" id="umpanBalik"></div>
+
+    <button class="tombol-utama" id="tombolLanjut" disabled>Pilih jawaban dulu</button>
+  </div>
+
+  <!-- ================= LAYAR HASIL ================= -->
+  <div class="layar-hasil" id="layarHasil">
+    <h2 style="font-size:1.1rem;color:#334155;">Hasil Kuis</h2>
+    <div class="skor-besar" id="skorAkhir">0/10</div>
+    <p class="pesan-hasil" id="pesanHasil"></p>
+    <div class="rincian" id="rincianJawaban"></div>
+    <button class="tombol-utama" id="tombolUlang">Ulangi Kuis</button>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   DATA SOAL PERPANGKATAN
+   Setiap soal: teks (boleh pakai tag HTML <sup>),
+   pilihan jawaban, indeks benar, dan pembahasan.
+   ===================================================== */
+const DAFTAR_SOAL = [
+  {
+    teks: "Hasil dari 2<sup>4</sup> adalah ...",
+    pilihan: ["8", "12", "16", "32"],
+    benar: 2,
+    pembahasan: "2⁴ = 2 × 2 × 2 × 2 = 16."
+  },
+  {
+    teks: "Hasil dari 3<sup>3</sup> adalah ...",
+    pilihan: ["9", "18", "27", "81"],
+    benar: 2,
+    pembahasan: "3³ = 3 × 3 × 3 = 27."
+  },
+  {
+    teks: "Bentuk sederhana dari 5<sup>2</sup> × 5<sup>3</sup> adalah ...",
+    pilihan: ["5<sup>5</sup>", "5<sup>6</sup>", "25<sup>5</sup>", "10<sup>5</sup>"],
+    benar: 0,
+    pembahasan: "aᵐ × aⁿ = aᵐ⁺ⁿ, jadi 5² × 5³ = 5²⁺³ = 5⁵."
+  },
+  {
+    teks: "Bentuk sederhana dari 7<sup>6</sup> ÷ 7<sup>2</sup> adalah ...",
+    pilihan: ["7<sup>3</sup>", "7<sup>4</sup>", "7<sup>8</sup>", "7<sup>12</sup>"],
+    benar: 1,
+    pembahasan: "aᵐ ÷ aⁿ = aᵐ⁻ⁿ, jadi 7⁶ ÷ 7² = 7⁶⁻² = 7⁴."
+  },
+  {
+    teks: "Nilai dari (2<sup>3</sup>)<sup>2</sup> adalah ...",
+    pilihan: ["2<sup>5</sup>", "2<sup>6</sup>", "2<sup>9</sup>", "4<sup>6</sup>"],
+    benar: 1,
+    pembahasan: "(aᵐ)ⁿ = aᵐˣⁿ, jadi (2³)² = 2³ˣ² = 2⁶ = 64."
+  },
+  {
+    teks: "Hasil dari 10<sup>0</sup> adalah ...",
+    pilihan: ["0", "1", "10", "100"],
+    benar: 1,
+    pembahasan: "Setiap bilangan (kecuali 0) yang dipangkatkan 0 hasilnya 1, jadi 10⁰ = 1."
+  },
+  {
+    teks: "Nilai dari 4<sup>−2</sup> adalah ...",
+    pilihan: ["−16", "−8", "1/8", "1/16"],
+    benar: 3,
+    pembahasan: "a⁻ⁿ = 1/aⁿ, jadi 4⁻² = 1/4² = 1/16."
+  },
+  {
+    teks: "Bentuk akar dari 9<sup>1/2</sup> adalah ...",
+    pilihan: ["2", "3", "4,5", "81"],
+    benar: 1,
+    pembahasan: "a^(1/2) = √a, jadi 9^(1/2) = √9 = 3."
+  },
+  {
+    teks: "Hasil dari 2<sup>3</sup> + 3<sup>2</sup> adalah ...",
+    pilihan: ["10", "13", "17", "25"],
+    benar: 2,
+    pembahasan: "2³ = 8 dan 3² = 9, jadi 8 + 9 = 17."
+  },
+  {
+    teks: "Bentuk sederhana dari (2x<sup>2</sup>)<sup>3</sup> adalah ...",
+    pilihan: ["6x<sup>5</sup>", "8x<sup>5</sup>", "6x<sup>6</sup>", "8x<sup>6</sup>"],
+    benar: 3,
+    pembahasan: "(2x²)³ = 2³ · (x²)³ = 8 · x⁶ = 8x⁶."
+  }
+];
+
+/* =====================================================
+   VARIABEL STATUS KUIS
+   ===================================================== */
+let indeksSoal = 0;        // soal yang sedang dikerjakan (0-9)
+let skor = 0;              // jumlah jawaban benar
+let sudahMenjawab = false; // apakah soal saat ini sudah dijawab
+let catatanJawaban = [];   // menyimpan hasil tiap soal untuk layar hasil
+
+/* =====================================================
+   REFERENSI ELEMEN DOM
+   ===================================================== */
+const layarKuis      = document.getElementById("layarKuis");
+const layarHasil     = document.getElementById("layarHasil");
+const labelSoal      = document.getElementById("labelSoal");
+const labelSkor      = document.getElementById("labelSkor");
+const barDalam       = document.getElementById("barDalam");
+const teksSoal       = document.getElementById("teksSoal");
+const wadahPilihan   = document.getElementById("wadahPilihan");
+const umpanBalik     = document.getElementById("umpanBalik");
+const tombolLanjut   = document.getElementById("tombolLanjut");
+const skorAkhir      = document.getElementById("skorAkhir");
+const pesanHasil     = document.getElementById("pesanHasil");
+const rincianJawaban = document.getElementById("rincianJawaban");
+const tombolUlang    = document.getElementById("tombolUlang");
+
+const HURUF_PILIHAN = ["A", "B", "C", "D"];
+
+/* =====================================================
+   FUNGSI: TAMPILKAN SOAL SAAT INI
+   ===================================================== */
+function tampilkanSoal() {
+  const soal = DAFTAR_SOAL[indeksSoal];
+  sudahMenjawab = false;
+
+  // Perbarui info atas
+  labelSoal.textContent = `Soal ${indeksSoal + 1} dari ${DAFTAR_SOAL.length}`;
+  labelSkor.textContent = `Skor: ${skor}`;
+  barDalam.style.width = `${(indeksSoal / DAFTAR_SOAL.length) * 100}%`;
+
+  // Tampilkan teks soal (pakai innerHTML agar <sup> tampil)
+  teksSoal.innerHTML = soal.teks;
+
+  // Buat tombol pilihan
+  wadahPilihan.innerHTML = "";
+  soal.pilihan.forEach((opsi, i) => {
+    const btn = document.createElement("button");
+    btn.className = "tombol-pilihan";
+    btn.innerHTML = `<span class="huruf">${HURUF_PILIHAN[i]}</span><span>${opsi}</span>`;
+    btn.addEventListener("click", () => periksaJawaban(i));
+    wadahPilihan.appendChild(btn);
+  });
+
+  // Reset umpan balik dan tombol lanjut
+  umpanBalik.className = "umpan-balik";
+  umpanBalik.textContent = "";
+  tombolLanjut.disabled = true;
+  tombolLanjut.textContent = "Pilih jawaban dulu";
+}
+
+/* =====================================================
+   FUNGSI: PERIKSA JAWABAN YANG DIPILIH
+   ===================================================== */
+function periksaJawaban(indeksDipilih) {
+  if (sudahMenjawab) return; // cegah klik ganda
+  sudahMenjawab = true;
+
+  const soal = DAFTAR_SOAL[indeksSoal];
+  const semuaTombol = wadahPilihan.querySelectorAll(".tombol-pilihan");
+
+  // Nonaktifkan semua tombol
+  semuaTombol.forEach(btn => (btn.disabled = true));
+
+  // Tandai jawaban benar
+  semuaTombol[soal.benar].classList.add("benar");
+
+  // Tandai jawaban salah jika pilihan pengguna keliru
+  if (indeksDipilih !== soal.benar) {
+    semuaTombol[indeksDipilih].classList.add("salah");
+  } else {
+    skor++;
+  }
+
+  // Simpan catatan untuk layar hasil (hapus tag HTML agar ringkas)
+  catatanJawaban.push({
+    teks: soal.teks.replace(/<[^>]+>/g, "").replace(/sup/g, ""),
+    benar: indeksDipilih === soal.benar
+  });
+
+  // Tampilkan umpan balik
+  umpanBalik.classList.add("tampil", indeksDipilih === soal.benar ? "ok" : "gagal");
+  umpanBalik.textContent =
+    (indeksDipilih === soal.benar ? "Benar! " : "Belum tepat. ") + soal.pembahasan;
+
+  // Perbarui skor dan tombol lanjut
+  labelSkor.textContent = `Skor: ${skor}`;
+  tombolLanjut.disabled = false;
+  tombolLanjut.textContent =
+    indeksSoal === DAFTAR_SOAL.length - 1 ? "Lihat Hasil" : "Soal Berikutnya";
+}
+
+/* =====================================================
+   FUNGSI: LANJUT KE SOAL BERIKUTNYA ATAU HASIL
+   ===================================================== */
+function lanjut() {
+  if (indeksSoal < DAFTAR_SOAL.length - 1) {
+    indeksSoal++;
+    tampilkanSoal();
+  } else {
+    tampilkanHasil();
+  }
+}
+
+/* =====================================================
+   FUNGSI: TAMPILKAN LAYAR HASIL
+   ===================================================== */
+function tampilkanHasil() {
+  layarKuis.classList.add("sembunyi");
+  layarHasil.classList.add("tampil");
+
+  const total = DAFTAR_SOAL.length;
+  skorAkhir.textContent = `${skor}/${total}`;
+
+  // Pesan motivasi berdasarkan skor
+  let pesan;
+  if (skor === total) {
+    pesan = "Luar biasa! Semua jawaban benar. Kamu menguasai perpangkatan!";
+  } else if (skor >= 8) {
+    pesan = "Hebat! Pemahamanmu tentang perpangkatan sudah sangat baik.";
+  } else if (skor >= 6) {
+    pesan = "Bagus! Sedikit lagi, pelajari kembali sifat-sifat perpangkatan ya.";
+  } else if (skor >= 4) {
+    pesan = "Cukup baik. Yuk latihan lebih banyak soal perpangkatan.";
+  } else {
+    pesan = "Jangan menyerah! Pelajari kembali sifat-sifat dasar perpangkatan, lalu coba lagi.";
+  }
+  pesanHasil.textContent = pesan;
+
+  // Rincian tiap soal
+  rincianJawaban.innerHTML = "";
+  catatanJawaban.forEach((catatan, i) => {
+    const baris = document.createElement("div");
+    baris.innerHTML = catatan.benar
+      ? `<span class="ikon-benar">✓</span> Soal ${i + 1}: ${catatan.teks}`
+      : `<span class="ikon-salah">✗</span> Soal ${i + 1}: ${catatan.teks}`;
+    rincianJawaban.appendChild(baris);
+  });
+}
+
+/* =====================================================
+   FUNGSI: ULANGI KUIS DARI AWAL
+   ===================================================== */
+function ulangiKuis() {
+  indeksSoal = 0;
+  skor = 0;
+  sudahMenjawab = false;
+  catatanJawaban = [];
+
+  layarHasil.classList.remove("tampil");
+  layarKuis.classList.remove("sembunyi");
+
+  tampilkanSoal();
+}
+
+/* =====================================================
+   PASANG EVENT & MULAI
+   ===================================================== */
+tombolLanjut.addEventListener("click", lanjut);
+tombolUlang.addEventListener("click", ulangiKuis);
+
+// Mulai kuis saat halaman dimuat
+tampilkanSoal();
+</script>
+
+</body>
+</html>
