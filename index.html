@@ -546,3 +546,551 @@ tampilkanSoal();
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Pythagoras - SMP</title>
+<style>
+  /* ===== Gaya dasar ===== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(160deg, #dbeafe, #bfdbfe);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px;
+    color: #1e293b;
+  }
+
+  .wadah {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30, 58, 138, 0.15);
+    padding: 20px;
+    margin-top: 8px;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    text-align: center;
+    color: #1d4ed8;
+    margin-bottom: 4px;
+  }
+
+  .subjudul {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 16px;
+  }
+
+  /* ===== Bilah kemajuan ===== */
+  .info-atas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+
+  .bar-luar {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .bar-dalam {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+
+  /* ===== Kartu soal ===== */
+  .soal {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+  }
+
+  /* ===== Tombol pilihan ===== */
+  .pilihan {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .tombol-pilihan {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    text-align: left;
+    background: #f1f5f9;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    font-family: inherit;
+    color: #1e293b;
+  }
+
+  .tombol-pilihan:hover:not(:disabled) {
+    background: #dbeafe;
+    border-color: #93c5fd;
+  }
+
+  .tombol-pilihan:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .tombol-pilihan:disabled {
+    cursor: default;
+  }
+
+  .huruf {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border-radius: 50%;
+    background: #cbd5e1;
+    color: #334155;
+  }
+
+  /* Warna jawaban benar / salah */
+  .benar {
+    background: #dcfce7 !important;
+    border-color: #22c55e !important;
+  }
+  .benar .huruf {
+    background: #22c55e;
+    color: #ffffff;
+  }
+
+  .salah {
+    background: #fee2e2 !important;
+    border-color: #ef4444 !important;
+  }
+  .salah .huruf {
+    background: #ef4444;
+    color: #ffffff;
+  }
+
+  /* ===== Umpan balik ===== */
+  .umpan-balik {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .umpan-balik.tampil {
+    display: block;
+  }
+
+  .umpan-balik.ok {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .umpan-balik.gagal {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  /* ===== Tombol navigasi ===== */
+  .tombol-utama {
+    width: 100%;
+    padding: 13px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    color: #ffffff;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .tombol-utama:hover:not(:disabled) {
+    opacity: 0.92;
+  }
+
+  .tombol-utama:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .tombol-utama:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  /* ===== Layar hasil ===== */
+  .layar-hasil {
+    display: none;
+    text-align: center;
+  }
+
+  .layar-hasil.tampil {
+    display: block;
+  }
+
+  .skor-besar {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #1d4ed8;
+    line-height: 1;
+    margin: 10px 0;
+  }
+
+  .pesan-hasil {
+    font-size: 1rem;
+    color: #475569;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .rincian {
+    text-align: left;
+    font-size: 0.85rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 18px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .rincian div {
+    padding: 6px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .rincian div:last-child {
+    border-bottom: none;
+  }
+
+  .ikon-benar { color: #16a34a; font-weight: 700; }
+  .ikon-salah { color: #dc2626; font-weight: 700; }
+
+  /* Sembunyikan layar kuis saat hasil tampil */
+  .layar-kuis.sembunyi {
+    display: none;
+  }
+
+  /* Notasi pangkat (sup) */
+  sup {
+    font-size: 0.75em;
+  }
+</style>
+</head>
+<body>
+
+<div class="wadah">
+  <h1>Kuis Teorema Pythagoras</h1>
+  <p class="subjudul">10 soal pilihan ganda untuk siswa SMP</p>
+
+  <!-- ================= LAYAR KUIS ================= -->
+  <div class="layar-kuis" id="layarKuis">
+    <div class="info-atas">
+      <span id="labelSoal">Soal 1 dari 10</span>
+      <span id="labelSkor">Skor: 0</span>
+    </div>
+    <div class="bar-luar">
+      <div class="bar-dalam" id="barDalam"></div>
+    </div>
+
+    <div class="soal" id="teksSoal">Memuat soal...</div>
+    <div class="pilihan" id="wadahPilihan"></div>
+    <div class="umpan-balik" id="umpanBalik"></div>
+
+    <button class="tombol-utama" id="tombolLanjut" disabled>Pilih jawaban dulu</button>
+  </div>
+
+  <!-- ================= LAYAR HASIL ================= -->
+  <div class="layar-hasil" id="layarHasil">
+    <h2 style="font-size:1.1rem;color:#334155;">Hasil Kuis</h2>
+    <div class="skor-besar" id="skorAkhir">0/10</div>
+    <p class="pesan-hasil" id="pesanHasil"></p>
+    <div class="rincian" id="rincianJawaban"></div>
+    <button class="tombol-utama" id="tombolUlang">Ulangi Kuis</button>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   DATA SOAL TEOREMA PYTHAGORAS
+   Setiap soal: teks (boleh pakai tag HTML <sup>),
+   pilihan jawaban, indeks benar, dan pembahasan.
+   ===================================================== */
+const DAFTAR_SOAL = [
+  {
+    teks: "Sebuah segitiga siku-siku memiliki sisi tegak 3 cm dan 4 cm. Panjang sisi miringnya adalah ...",
+    pilihan: ["5 cm", "6 cm", "7 cm", "8 cm"],
+    benar: 0,
+    pembahasan: "c² = 3² + 4² = 9 + 16 = 25, maka c = √25 = 5 cm."
+  },
+  {
+    teks: "Segitiga siku-siku dengan sisi tegak 6 cm dan 8 cm memiliki sisi miring ...",
+    pilihan: ["9 cm", "10 cm", "12 cm", "14 cm"],
+    benar: 1,
+    pembahasan: "c² = 6² + 8² = 36 + 64 = 100, maka c = √100 = 10 cm."
+  },
+  {
+    teks: "Rumus Teorema Pythagoras yang benar adalah ...",
+    pilihan: ["a² = b² + c²", "b² = a² + c²", "c² = a² + b²", "c² = a² − b²"],
+    benar: 2,
+    pembahasan: "Pada segitiga siku-siku, kuadrat sisi miring (c) sama dengan jumlah kuadrat kedua sisi tegaknya: c² = a² + b²."
+  },
+  {
+    teks: "Sebuah tangga panjangnya 13 m bersandar pada dinding. Jika jarak kaki tangga ke dinding 5 m, tinggi ujung tangga dari tanah adalah ...",
+    pilihan: ["8 m", "10 m", "12 m", "14 m"],
+    benar: 2,
+    pembahasan: "t² = 13² − 5² = 169 − 25 = 144, maka t = √144 = 12 m."
+  },
+  {
+    teks: "Sisi miring sebuah segitiga siku-siku 17 cm dan salah satu sisi tegaknya 8 cm. Panjang sisi tegak lainnya adalah ...",
+    pilihan: ["9 cm", "12 cm", "15 cm", "16 cm"],
+    benar: 2,
+    pembahasan: "b² = 17² − 8² = 289 − 64 = 225, maka b = √225 = 15 cm."
+  },
+  {
+    teks: "Manakah kelompok bilangan berikut yang merupakan triple Pythagoras?",
+    pilihan: ["3, 4, 6", "5, 12, 13", "6, 8, 12", "7, 9, 11"],
+    benar: 1,
+    pembahasan: "5² + 12² = 25 + 144 = 169 = 13², jadi 5, 12, 13 adalah triple Pythagoras."
+  },
+  {
+    teks: "Segitiga dengan sisi 8 cm, 15 cm, dan 17 cm. Jenis segitiga tersebut adalah ...",
+    pilihan: ["Segitiga lancip", "Segitiga siku-siku", "Segitiga tumpul", "Segitiga sama sisi"],
+    benar: 1,
+    pembahasan: "8² + 15² = 64 + 225 = 289 = 17². Karena c² = a² + b², segitiga siku-siku."
+  },
+  {
+    teks: "Sebuah persegi panjang berukuran 12 cm × 9 cm. Panjang diagonalnya adalah ...",
+    pilihan: ["13 cm", "14 cm", "15 cm", "16 cm"],
+    benar: 2,
+    pembahasan: "d² = 12² + 9² = 144 + 81 = 225, maka d = √225 = 15 cm."
+  },
+  {
+    teks: "Segitiga dengan sisi 7 cm, 24 cm, dan 25 cm. Panjang sisi miringnya adalah ...",
+    pilihan: ["7 cm", "24 cm", "25 cm", "31 cm"],
+    benar: 2,
+    pembahasan: "Karena 7² + 24² = 49 + 576 = 625 = 25², sisi miring adalah sisi terpanjang, yaitu 25 cm."
+  },
+  {
+    teks: "Sebuah layar TV berbentuk persegi panjang dengan diagonal 50 cm dan lebar 30 cm. Tinggi layar tersebut adalah ...",
+    pilihan: ["35 cm", "40 cm", "45 cm", "48 cm"],
+    benar: 1,
+    pembahasan: "t² = 50² − 30² = 2500 − 900 = 1600, maka t = √1600 = 40 cm."
+  }
+];
+
+/* =====================================================
+   VARIABEL STATUS KUIS
+   ===================================================== */
+let indeksSoal = 0;        // soal yang sedang dikerjakan (0-9)
+let skor = 0;              // jumlah jawaban benar
+let sudahMenjawab = false; // apakah soal saat ini sudah dijawab
+let catatanJawaban = [];   // menyimpan hasil tiap soal untuk layar hasil
+
+/* =====================================================
+   REFERENSI ELEMEN DOM
+   ===================================================== */
+const layarKuis      = document.getElementById("layarKuis");
+const layarHasil     = document.getElementById("layarHasil");
+const labelSoal      = document.getElementById("labelSoal");
+const labelSkor      = document.getElementById("labelSkor");
+const barDalam       = document.getElementById("barDalam");
+const teksSoal       = document.getElementById("teksSoal");
+const wadahPilihan   = document.getElementById("wadahPilihan");
+const umpanBalik     = document.getElementById("umpanBalik");
+const tombolLanjut   = document.getElementById("tombolLanjut");
+const skorAkhir      = document.getElementById("skorAkhir");
+const pesanHasil     = document.getElementById("pesanHasil");
+const rincianJawaban = document.getElementById("rincianJawaban");
+const tombolUlang    = document.getElementById("tombolUlang");
+
+const HURUF_PILIHAN = ["A", "B", "C", "D"];
+
+/* =====================================================
+   FUNGSI: TAMPILKAN SOAL SAAT INI
+   ===================================================== */
+function tampilkanSoal() {
+  const soal = DAFTAR_SOAL[indeksSoal];
+  sudahMenjawab = false;
+
+  // Perbarui info atas
+  labelSoal.textContent = `Soal ${indeksSoal + 1} dari ${DAFTAR_SOAL.length}`;
+  labelSkor.textContent = `Skor: ${skor}`;
+  barDalam.style.width = `${(indeksSoal / DAFTAR_SOAL.length) * 100}%`;
+
+  // Tampilkan teks soal (pakai innerHTML agar <sup> tampil)
+  teksSoal.innerHTML = soal.teks;
+
+  // Buat tombol pilihan
+  wadahPilihan.innerHTML = "";
+  soal.pilihan.forEach((opsi, i) => {
+    const btn = document.createElement("button");
+    btn.className = "tombol-pilihan";
+    btn.innerHTML = `<span class="huruf">${HURUF_PILIHAN[i]}</span><span>${opsi}</span>`;
+    btn.addEventListener("click", () => periksaJawaban(i));
+    wadahPilihan.appendChild(btn);
+  });
+
+  // Reset umpan balik dan tombol lanjut
+  umpanBalik.className = "umpan-balik";
+  umpanBalik.textContent = "";
+  tombolLanjut.disabled = true;
+  tombolLanjut.textContent = "Pilih jawaban dulu";
+}
+
+/* =====================================================
+   FUNGSI: PERIKSA JAWABAN YANG DIPILIH
+   ===================================================== */
+function periksaJawaban(indeksDipilih) {
+  if (sudahMenjawab) return; // cegah klik ganda
+  sudahMenjawab = true;
+
+  const soal = DAFTAR_SOAL[indeksSoal];
+  const semuaTombol = wadahPilihan.querySelectorAll(".tombol-pilihan");
+
+  // Nonaktifkan semua tombol
+  semuaTombol.forEach(btn => (btn.disabled = true));
+
+  // Tandai jawaban benar
+  semuaTombol[soal.benar].classList.add("benar");
+
+  // Tandai jawaban salah jika pilihan pengguna keliru
+  if (indeksDipilih !== soal.benar) {
+    semuaTombol[indeksDipilih].classList.add("salah");
+  } else {
+    skor++;
+  }
+
+  // Simpan catatan untuk layar hasil (hapus tag HTML)
+  catatanJawaban.push({
+    teks: soal.teks.replace(/<[^>]+>/g, ""),
+    benar: indeksDipilih === soal.benar
+  });
+
+  // Tampilkan umpan balik
+  umpanBalik.classList.add("tampil", indeksDipilih === soal.benar ? "ok" : "gagal");
+  umpanBalik.textContent =
+    (indeksDipilih === soal.benar ? "Benar! " : "Belum tepat. ") + soal.pembahasan;
+
+  // Perbarui skor dan tombol lanjut
+  labelSkor.textContent = `Skor: ${skor}`;
+  tombolLanjut.disabled = false;
+  tombolLanjut.textContent =
+    indeksSoal === DAFTAR_SOAL.length - 1 ? "Lihat Hasil" : "Soal Berikutnya";
+}
+
+/* =====================================================
+   FUNGSI: LANJUT KE SOAL BERIKUTNYA ATAU HASIL
+   ===================================================== */
+function lanjut() {
+  if (indeksSoal < DAFTAR_SOAL.length - 1) {
+    indeksSoal++;
+    tampilkanSoal();
+  } else {
+    tampilkanHasil();
+  }
+}
+
+/* =====================================================
+   FUNGSI: TAMPILKAN LAYAR HASIL
+   ===================================================== */
+function tampilkanHasil() {
+  layarKuis.classList.add("sembunyi");
+  layarHasil.classList.add("tampil");
+
+  const total = DAFTAR_SOAL.length;
+  skorAkhir.textContent = `${skor}/${total}`;
+
+  // Pesan motivasi berdasarkan skor
+  let pesan;
+  if (skor === total) {
+    pesan = "Luar biasa! Semua jawaban benar. Kamu menguasai Teorema Pythagoras!";
+  } else if (skor >= 8) {
+    pesan = "Hebat! Pemahamanmu tentang Pythagoras sudah sangat baik.";
+  } else if (skor >= 6) {
+    pesan = "Bagus! Sedikit lagi, pelajari kembali penerapan Teorema Pythagoras ya.";
+  } else if (skor >= 4) {
+    pesan = "Cukup baik. Yuk latihan lebih banyak soal Pythagoras.";
+  } else {
+    pesan = "Jangan menyerah! Pelajari kembali rumus c² = a² + b², lalu coba lagi.";
+  }
+  pesanHasil.textContent = pesan;
+
+  // Rincian tiap soal
+  rincianJawaban.innerHTML = "";
+  catatanJawaban.forEach((catatan, i) => {
+    const baris = document.createElement("div");
+    baris.innerHTML = catatan.benar
+      ? `<span class="ikon-benar">✓</span> Soal ${i + 1}: ${catatan.teks}`
+      : `<span class="ikon-salah">✗</span> Soal ${i + 1}: ${catatan.teks}`;
+    rincianJawaban.appendChild(baris);
+  });
+}
+
+/* =====================================================
+   FUNGSI: ULANGI KUIS DARI AWAL
+   ===================================================== */
+function ulangiKuis() {
+  indeksSoal = 0;
+  skor = 0;
+  sudahMenjawab = false;
+  catatanJawaban = [];
+
+  layarHasil.classList.remove("tampil");
+  layarKuis.classList.remove("sembunyi");
+
+  tampilkanSoal();
+}
+
+/* =====================================================
+   PASANG EVENT & MULAI
+   ===================================================== */
+tombolLanjut.addEventListener("click", lanjut);
+tombolUlang.addEventListener("click", ulangiKuis);
+
+// Mulai kuis saat halaman dimuat
+tampilkanSoal();
+</script>
+
+</body>
+</html>
